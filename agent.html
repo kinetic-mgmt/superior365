@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your agent recommends Superior 365</title>
+<meta name="description" content="Download Superior 365 from Superior Roofing Specialists and enter your agent's code when you create your account.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800&family=IBM+Plex+Mono:wght@600&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+.agent{display:flex;gap:16px;align-items:center}
+.initials{width:64px;height:64px;border-radius:50%;border:2px solid var(--accent-deep);display:grid;place-items:center;
+  font:800 24px/1 "Archivo",Helvetica,Arial,sans-serif;color:var(--muted);background:#1A1A21;flex:none}
+.agent .name{font:800 22px/1.2 "Archivo",Helvetica,Arial,sans-serif;margin:0}
+.agent .by{color:var(--muted);margin:2px 0 0;font-size:15px}
+.code{font:600 34px/1 "IBM Plex Mono",ui-monospace,Menlo,monospace;letter-spacing:.12em;margin:8px 0 4px}
+.steps{padding-left:22px}
+.steps li{margin:8px 0}
+.store{display:inline-block;background:var(--accent-deep);color:#fff;text-decoration:none;font-weight:600;
+  padding:14px 22px;border-radius:10px;margin-top:8px}
+.store:hover{background:var(--accent);color:#fff}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a class="mark" href="./">Superior <span>365</span></a>
+  <nav aria-label="Pages"><a href="privacy.html">Privacy</a><a href="support.html">Support</a><a href="membership.html">Membership</a></nav>
+</div></header>
+<main><div class="wrap">
+<p class="eyebrow">Superior Roofing Specialists</p>
+<h1>Your roof, in your pocket.</h1>
+<p class="lede">Superior 365 keeps every inspection, photo and storm on your home on record, and keeps your agent one tap away.</p>
+
+<div class="panel" id="agent-panel" hidden>
+  <div class="agent">
+    <div class="initials" id="initials"></div>
+    <div>
+      <p class="name" id="agent-name"></p>
+      <p class="by" id="agent-by"></p>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Get started</h2>
+  <ol class="steps">
+    <li>Download Superior 365 from the App Store.</li>
+    <li>Tap <strong>I need to create an account</strong> and choose <strong>I own a home</strong>.</li>
+    <li id="code-step">Enter your agent's code in <strong>Agent code</strong>.</li>
+  </ol>
+  <div id="code-box" hidden>
+    <p class="eyebrow" style="margin:18px 0 0">Your agent's code</p>
+    <p class="code" id="code"></p>
+  </div>
+  <a class="store" href="https://apps.apple.com/us/app/superior-365/id6806151788">Download on the App Store</a>
+</div>
+
+<p class="meta">Superior Roofing Specialists does not share your information with your agent. Your agent is an independent real estate professional, separate from Superior Roofing Specialists.</p>
+</div></main>
+<script>
+(function () {
+  var raw = new URLSearchParams(location.search).get('code') || '';
+  var code = raw.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
+  if (!code) return;
+  document.getElementById('code').textContent = code;
+  document.getElementById('code-box').hidden = false;
+  document.getElementById('code-step').innerHTML = 'Enter <strong>' + code + '</strong> in <strong>Agent code</strong>.';
+  fetch('https://pvcdtjzmzesivhnrexss.supabase.co/rest/v1/rpc/public_agent_card', {
+    method: 'POST',
+    headers: {
+      'apikey': 'sb_publishable_8JPbFXzAJgUyGdnwUzZzLA_nXBi3cWP',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ p_code: code })
+  }).then(function (r) { return r.ok ? r.json() : null; }).then(function (a) {
+    if (!a || !a.full_name) return;
+    var parts = a.full_name.trim().split(/\s+/);
+    document.getElementById('initials').textContent = parts.slice(0, 2).map(function (p) { return p[0]; }).join('').toUpperCase();
+    document.getElementById('agent-name').textContent = a.full_name;
+    document.getElementById('agent-by').textContent = a.title ? a.title + ', ' + a.brokerage : a.brokerage;
+    document.getElementById('agent-panel').hidden = false;
+  }).catch(function () {});
+})();
+</script>
+</body>
+</html>
