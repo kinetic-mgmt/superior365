@@ -44,10 +44,11 @@
 
 <div class="panel">
   <h2>Get started</h2>
+  <p id="open-line" hidden><a class="store" id="open-app" href="#">Open in the Superior 365 app</a></p>
   <ol class="steps">
     <li>Download Superior 365 from the App Store.</li>
     <li>Tap <strong>I need to create an account</strong> and choose <strong>I own a home</strong>.</li>
-    <li id="code-step">Enter your agent's code in <strong>Agent code</strong>.</li>
+    <li id="code-step">Your agent is added for you. If you are asked for a code, enter it below.</li>
   </ol>
   <div id="code-box" hidden>
     <p class="eyebrow" style="margin:18px 0 0">Your agent's code</p>
@@ -65,7 +66,20 @@
   if (!code) return;
   document.getElementById('code').textContent = code;
   document.getElementById('code-box').hidden = false;
-  document.getElementById('code-step').innerHTML = 'Enter <strong>' + code + '</strong> in <strong>Agent code</strong>.';
+  document.getElementById('code-step').innerHTML =
+    'Your agent is added for you. If you are ever asked, the code is <strong>' + code + '</strong>.';
+
+  // If the app is already on this phone, hand the code straight to it, so
+  // nobody has to read a code off a screen and type it back in. iOS opens the
+  // app and this page stays where it is; if the app is not installed nothing
+  // happens at all and the App Store button below is the way in.
+  var appUrl = 'srs365://agent?code=' + encodeURIComponent(code);
+  var open = document.getElementById('open-app');
+  open.href = appUrl;
+  document.getElementById('open-line').hidden = false;
+  if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+    setTimeout(function () { window.location.href = appUrl; }, 400);
+  }
   fetch('https://pvcdtjzmzesivhnrexss.supabase.co/rest/v1/rpc/public_agent_card', {
     method: 'POST',
     headers: {
