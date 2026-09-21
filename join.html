@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Start your membership · Superior 365</title>
+<meta name="description" content="Start your Superior 365 membership with Superior Roofing Specialists.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800&family=IBM+Plex+Mono:wght@600&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+.plan.picked{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.picked-tag{display:inline-block;font:600 11px/1 "IBM Plex Mono",ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:#fff;background:var(--accent-deep);border-radius:5px;padding:5px 7px;margin:0 0 10px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 6px}
+.btn{display:inline-block;background:var(--accent-deep);color:#fff;text-decoration:none;font-weight:600;padding:13px 20px;border-radius:10px}
+.btn:hover{background:var(--accent);color:#fff}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+.ref{font:600 20px/1 "IBM Plex Mono",ui-monospace,Menlo,monospace;letter-spacing:.14em;margin:6px 0 2px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a class="mark" href="./">Superior <span>365</span></a>
+  <nav aria-label="Pages"><a href="privacy.html">Privacy</a><a href="support.html">Support</a><a href="membership.html">Membership</a></nav>
+</div></header>
+<main><div class="wrap">
+<p class="eyebrow">Superior Roofing Specialists</p>
+<h1>Start your membership</h1>
+<p class="lede" id="lede">Choose a plan and our office will set it up with you. It takes a couple of minutes.</p>
+
+<div class="panel alert">
+  <h2>How to start</h2>
+  <p id="how">Call or text Mark at Superior Roofing Specialists. He will confirm your plan, take payment and switch your membership on. Your app updates as soon as it is active.</p>
+  <div class="actions">
+    <a class="btn" href="tel:4056336566">Call (405) 633 6566</a>
+    <a class="btn ghost" href="sms:4056336566">Text instead</a>
+    <a class="btn ghost" href="mailto:mark@srsokc.com?subject=Superior%20365%20membership">Email Mark</a>
+  </div>
+  <div id="ref-box" hidden>
+    <p class="meta" style="margin-top:14px">Give the office this reference so they can match it to your app account:</p>
+    <p class="ref" id="ref"></p>
+  </div>
+</div>
+
+<div class="cards" id="plans">
+  <div class="plan" data-plan="bronze">
+    <h3>Bronze</h3><p class="tag">Roof Monitoring</p>
+    <p class="price"><span data-m>$19.95</span> <small>a month</small><br><span data-a>$199</span> <small>a year</small></p>
+    <ul><li>Annual roof health inspection</li><li>Photo report and Roof Health Score</li><li>Storm alerts</li><li>5% Member Savings on repairs</li></ul>
+  </div>
+  <div class="plan" data-plan="silver">
+    <h3>Silver</h3><p class="tag">Preventive Roof Care · Most popular</p>
+    <p class="price"><span data-m>$29.95</span> <small>a month</small><br><span data-a>$299</span> <small>a year</small></p>
+    <ul><li>Everything in Bronze</li><li>Spring and fall roof visits</li><li>Annual gutter cleaning</li><li>10% Member Savings on repairs</li></ul>
+  </div>
+  <div class="plan" data-plan="gold">
+    <h3>Gold</h3><p class="tag">Total Roof Protection</p>
+    <p class="price"><span data-m>$49.95</span> <small>a month</small><br><span data-a>$499</span> <small>a year</small></p>
+    <ul><li>Everything in Silver</li><li>Two gutter cleanings a year</li><li>Emergency tarping and priority response</li><li>Leak Protection Guarantee</li><li>15% Member Savings on repairs</li></ul>
+  </div>
+</div>
+
+<p class="meta" style="margin-top:22px">Memberships are sold and billed by Superior Roofing Specialists directly, not through the App Store. Full plan details, service terms and exclusions are on the <a href="membership.html">membership page</a>.</p>
+</div></main>
+<footer><div class="wrap"><span>Superior Roofing Specialists · Oklahoma City</span><a href="membership.html">Membership terms</a></div></footer>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var plan = (q.get('plan') || '').toLowerCase();
+  var billing = (q.get('billing') || '').toLowerCase() === 'annual' ? 'annual' : 'monthly';
+  var ref = (q.get('ref') || '').replace(/[^a-zA-Z0-9]/g, '').slice(0, 8).toUpperCase();
+  var names = { bronze: 'Bronze', silver: 'Silver', gold: 'Gold' };
+
+  function money(n, whole) {
+    var v = Number(n);
+    if (!isFinite(v)) return null;
+    return '$' + (whole && v % 1 === 0 ? v.toFixed(0) : v.toFixed(2));
+  }
+
+  // Prices come from the same catalogue the app shows, so this page never
+  // disagrees with it. The numbers written above are only the fallback.
+  fetch('https://pvcdtjzmzesivhnrexss.supabase.co/rest/v1/plans?select=key,monthly,annual&active=eq.true', {
+    headers: { apikey: 'sb_publishable_8JPbFXzAJgUyGdnwUzZzLA_nXBi3cWP' }
+  }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+    rows.forEach(function (p) {
+      var card = document.querySelector('.plan[data-plan="' + p.key + '"]');
+      if (!card) return;
+      var m = money(p.monthly), a = money(p.annual, true);
+      if (m) card.querySelector('[data-m]').textContent = m;
+      if (a) card.querySelector('[data-a]').textContent = a;
+      if (p.key === plan) showChoice(card);
+    });
+  }).catch(function () {});
+
+  function showChoice(card) {
+    var price = billing === 'annual'
+      ? card.querySelector('[data-a]').textContent + ' a year'
+      : card.querySelector('[data-m]').textContent + ' a month';
+    document.getElementById('lede').textContent =
+      'You chose ' + names[plan] + ', ' + price + '. Our office will set it up with you.';
+    document.getElementById('how').textContent =
+      'Call or text Mark at Superior Roofing Specialists and tell him you chose ' + names[plan] +
+      ' in the app. He will take payment and switch your membership on, and your app updates as soon as it is active.';
+  }
+
+  if (names[plan]) {
+    var card = document.querySelector('.plan[data-plan="' + plan + '"]');
+    card.classList.add('picked');
+    var tag = document.createElement('span');
+    tag.className = 'picked-tag';
+    tag.textContent = 'Your choice';
+    card.insertBefore(tag, card.firstChild);
+    showChoice(card);
+  }
+  if (ref) {
+    document.getElementById('ref').textContent = ref;
+    document.getElementById('ref-box').hidden = false;
+  }
+})();
+</script>
+</body>
+</html>
